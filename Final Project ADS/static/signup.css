@@ -1,7 +1,10 @@
-body {
-  padding-top: 40px;
-  padding-bottom: 40px;
-}
+
+      body {
+  background:url('http://cdn.wallpapersafari.com/13/6/Mpsg2b.jpg');
+  margin:0px;
+  font-family: 'Ubuntu', sans-serif;
+  background-size: 100% 110%;
+            }
  
 .form-signin {
   max-width: 330px;

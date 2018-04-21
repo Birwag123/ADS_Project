@@ -21,7 +21,7 @@
                     <li role="presentation" class="active"><a href="#">Home  </a>
 					&nbsp; &nbsp; &nbsp; &nbsp;
                     </li>
-                    <li role="presentation"><a href="#">Sign In  </a>
+                    <li role="presentation"><a href="showSignin">Sign In  </a>
 					&nbsp; &nbsp; &nbsp; &nbsp;
                     </li>
                     <li role="presentation"><a href="showSignUp">Sign Up </a>
@@ -41,9 +41,10 @@
             <p><a class="btn btn-lg btn-success" href="showSignUp" role="button">Sign up today for a safe city</a>
             </p>
         </div>
- 
-
- 
+        <form action = "/graph/" , method="POST">         
+        <input type="text" name="graph" placeholder="Primary Type">
+        <button id="btnSignUp" class="btn btn-primary" type="submit">Okay</button>
+      </form>
         <footer class="footer">
             <p>&copy; Team 8</p>
         </footer>
