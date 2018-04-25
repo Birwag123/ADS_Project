@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+ 
+<head>
+    <title>Crimes in Chicago App</title>
+ 
+ 
+    <link href="http://getbootstrap.com/dist/css/bootstrap.min.css" rel="stylesheet">
+ 
+    <link href="http://getbootstrap.com/examples/jumbotron-narrow/jumbotron-narrow.css" rel="stylesheet">
+ 
+ 
+</head>
+ 
+<body>
+
+      <h2> Hello , {{data1}}</h2>
+    <div class="container">
+        <div class="header">
+            <br>
+            <br>
+                        <nav >
+                <br>
+                <br>
+                <ul class="nav nav-pills pull-right">
+                     <form action= '/About/', method="POST">
+                    <li role="presentation"><button class="btn btn-primary" type="submit">About</button>
+                    &nbsp; &nbsp; &nbsp; &nbsp;
+                    </form>
+                    </li>
+                    <form  action= '/showSignOut/', method="POST">
+                    <li   role="presentation"><button class="btn btn-primary" type="submit">Sign Out</button>
+                    &nbsp; &nbsp; &nbsp; &nbsp;
+                <br>
+                <br></form>
+                    </li>
+                    <li role="presentation">
+                      &nbsp; &nbsp; &nbsp; &nbsp;
+                    <form action="/fill_form/" method="POST">
+    <button class="btn btn-primary" type="submit" name= "Send_Email"  value="Send_Email">Check Crime Status</button>
+                      </form>
+                    </li>
+                    <li role="presentation">
+                    <form action="/upload_csv/" method="POST">
+                    <button class="btn btn-primary" type="submit" name= "Send_Email"  value="Send_Email">Upload Bulk Files
+                    </button>
+                  </form>
+                    </li>
+                </ul>
+            </nav>
+            <br>
+            <br>
+
+                    <h1 align="center">Crimes In Chicago App</h1>
+
+	</div>	
+		</div>
+
+
+      <div  class="jumbotron">
+
+        <div align="center"> 
+ 
+        <br>
+
+        <br>
+        <form action="/graph/" , method="POST">
+        <label>
+          Choose The EDA Options 
+        </label>
+        <select name="EDA">
+        <option value= "Primary Type" >Primary Type</option>
+        <option value="Location Description">Location Description</option>
+        <option value="Week">Number of Crimes by day of the week</option>
+        <option value="Month">Number of Crimes by day of the Month</option>
+        </select>
+  <input type="submit" class="btn btn-primary" value="Submit">
+</form>
+    </div>
+      {% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul class=flashes>
+    {% for  message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %} 
+
+      </div>
+ <br>
+     <br>  
+ <br>
+      <footer align="center" class="footer">
+        <p>&copy; Team 8</p>
+      </footer>
+  </body>
+</html>
