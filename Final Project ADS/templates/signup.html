@@ -25,7 +25,7 @@
                     <li role="presentation"><a href="/showSignin/">Sign In  </a>
 					&nbsp; &nbsp; &nbsp; &nbsp;
                     </li>
-                    <li role="presentation  class="active"><a href="#">Sign Up </a>
+                    <li role="presentation  class="active"><a href="/showSignin/">Sign Up </a>
 					&nbsp; &nbsp; &nbsp; &nbsp;
                     </li>
                 </ul>
@@ -36,23 +36,19 @@
      <br>
       <div class="jumbotron">
         <h1>Crimes In Chicago App</h1>
-        <form class="form-signin" action="/signUp/" method="POST">
+        <form class="form-signin" action="/signIn/" method="POST">
         <label for="inputName" class="sr-only">Name</label>
         <input type="name" name="inputName" id="inputName" class="form-control" placeholder="Name" required autofocus>
 		<br>
-        <label for="inputEmail" class="sr-only">Email address</label>
-        <input type="email" name="inputEmail" id="inputEmail" class="form-control" placeholder="Email address" required autofocus>
+        <label for="inputEmail" class="sr-only">Username</label>
+        <input type="text" name="inputEmail" id="inputEmail" class="form-control" placeholder="Username" required autofocus>
 		<br>
         <label for="inputPassword" class="sr-only">Password</label>
         <input type="password" name="inputPassword" id="inputPassword" class="form-control" placeholder="Password" required>
          
-        <button id="btnSignUp" class="btn btn-lg btn-primary btn-block" type="submit">Sign up</button>
+        <button id="btnSignUp" class="btn btn-lg btn-primary btn-block" type="submit">Sign In</button>
       </form>
-      <form class="form-signin" action="/plot.png/" method="POST">
-         
-        <button id="btnSignUp" class="btn btn-lg btn-primary btn-block" type="submit">Sign up</button>
-      </form>
-{% with messages = get_flashed_messages() %}
+      {% with messages = get_flashed_messages() %}
   {% if messages %}
     <ul class=flashes>
     {% for  message in messages %}

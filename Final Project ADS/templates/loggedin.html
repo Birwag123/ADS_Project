@@ -14,7 +14,7 @@
  
 <body>
 
-      <h2> Hello , {{data1}}</h2>
+      <h2> Hello , {{name}}</h2>
     <div class="container">
         <div class="header">
             <br>
@@ -31,13 +31,13 @@
                     <form  action= '/showSignOut/', method="POST">
                     <li   role="presentation"><button class="btn btn-primary" type="submit">Sign Out</button>
                     &nbsp; &nbsp; &nbsp; &nbsp;
-                <br>
-                <br></form>
+                  </form>
                     </li>
                     <li role="presentation">
-                      &nbsp; &nbsp; &nbsp; &nbsp;
+
                     <form action="/fill_form/" method="POST">
     <button class="btn btn-primary" type="submit" name= "Send_Email"  value="Send_Email">Check Crime Status</button>
+                       &nbsp; &nbsp; &nbsp; &nbsp;
                       </form>
                     </li>
                     <li role="presentation">
@@ -73,10 +73,13 @@
         <option value="Location Description">Location Description</option>
         <option value="Week">Number of Crimes by day of the week</option>
         <option value="Month">Number of Crimes by day of the Month</option>
+        <option value="cpm">Number of crimes per month</option>
+        <option value="cpm1">Crimes Seperated by types and its occurance in the years</option>
         </select>
   <input type="submit" class="btn btn-primary" value="Submit">
 </form>
     </div>
+
       {% with messages = get_flashed_messages() %}
   {% if messages %}
     <ul class=flashes>
@@ -91,6 +94,9 @@
  <br>
      <br>  
  <br>
+
+
+
       <footer align="center" class="footer">
         <p>&copy; Team 8</p>
       </footer>

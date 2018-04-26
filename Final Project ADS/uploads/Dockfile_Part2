@@ -1,0 +1,28 @@
+FROM python:3
+
+#Code Source
+COPY assignment3_Part2/. /flask
+
+
+Run pip3 install flask
+Run pip3 install pandas
+Run pip3 install boto
+Run pip3 install boto3
+Run pip3 install requests
+Run pip3 install bs4
+Run pip3 install matplotlib
+Run pip3 install seaborn
+Run pip3 install numpy
+Run pip3 install xlrd
+Run pip3 install imblearn
+Run pip3 install sklearn
+Run pip3 install wget
+
+EXPOSE 8000
+CMD ["python3 /flask/app.py", "-p 8000"]
+
+#CMD ["sh","-c","python3 /flask/app.py"]
+
+ENTRYPOINT  ["python3","/flask/app.py"]
+
+CMD myinput

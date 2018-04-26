@@ -8,6 +8,14 @@ from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 import random
+import numpy as np
+from boto3.s3.transfer import S3Transfer
+from boto.s3.connection import S3Connection
+import boto
+import boto3
+import boto.s3
+from boto.s3.key import Key 
+import pickle
 import datetime as dt
 import io
 import os
@@ -20,20 +28,34 @@ from IPython.display import display
 from plotly.graph_objs import *
 from plotly.widgets import GraphWidget
 import pygal
+import bokeh
+from bokeh import *
+from bokeh.embed import components
 from werkzeug.utils import secure_filename
+import base64
+import urllib.request
 app = Flask(__name__)
 app.secret_key = 'Shantanu06'
-mysql = MySQL()
+#mysql = MySQL()
 # MySQL configurations
-app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = 'password'
-app.config['MYSQL_DATABASE_DB'] = 'crimesinchicago'
-app.config['MYSQL_DATABASE_HOST'] = 'localhost'
-mysql.init_app(app)
-conn = mysql.connect()
-cursor = conn.cursor()
-crimes = pd.read_csv('F:/Chicago_Crimes_2012_to_2017.csv' , error_bad_lines = False)
-print("Data Read")  
+#app.config['MYSQL_DATABASE_USER'] = 'root'
+#app.config['MYSQL_DATABASE_PASSWORD'] = 'password'
+#app.config['MYSQL_DATABASE_DB'] = 'crimesinchicago'
+#app.config['MYSQL_DATABASE_HOST'] = 'localhost'
+#mysql.init_app(app)
+#conn = mysql.connect()
+#cursor = conn.cursor()
+S3_KEY = "AKIAI6BF5SDIVG5M3FIA"
+S3_SECRET_ACCESS_KEY = "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"
+S3_BUCKET = "assignment3adsteam8"
+url = "https://s3.amazonaws.com/adsfinalproject/Chicago_Crimes_2012_to_2017.csv"
+urllib.request.urlretrieve(url, 'Chicago_Crimes_2012_to_2017.csv')
+crimes = pd.read_csv('Chicago_Crimes_2012_to_2017.csv' , error_bad_lines = False )
+conn = S3Connection(S3_KEY, S3_SECRET_ACCESS_KEY)
+b = conn.get_bucket(S3_BUCKET)
+for obj in b.get_all_keys():
+    trial = obj.get_contents_to_filename(obj.key)
+#feature_names = crimes.columns[:].values.tolist()
 #crimes.Date = pd.to_datetime(crimes.Date, format='%m/%d/%Y %I:%M:%S %p')  
 #crimes.index = pd.DatetimeIndex(crimes.Date)
 @app.route("/")
@@ -41,66 +63,99 @@ def main():
     return render_template("index.html")
 @app.route("/graph/", methods=["POST"])
 def graph():
+    
+
     crimes.Date = pd.to_datetime(crimes.Date, format='%m/%d/%Y %I:%M:%S %p')  
     crimes.index = pd.DatetimeIndex(crimes.Date)
-
-    #crimes['Date'] = pd.to_datetime(crimes['Date'])
-    #crimes['Day']=crimes['Date'].dt.weekday_name
-    #print("day")
-    #crimes['Hour']=crimes['Date'].dt.hour
-    #print("hour")
-    #crimes['Month']=crimes['Date'].dt.month
-    #print("month")
-    #crimes['Year'] = crimes['Date'].dt.year
-    #print("year")
-    
     if(request.form['EDA'] == "Primary Type"):
-        line_chart = pygal.HorizontalBar()
-        line_chart.title = 'Primary Type'
-        line_chart.add('Primary Type', crimes.groupby([crimes['Primary Type']]).size().sort_values(ascending=True))
-        graph_data = line_chart.render_data_uri()
-        return render_template('graph1.html',  graph_data=graph_data)
+        plt.figure(figsize=(8,10))
+        crimes.groupby([crimes['Primary Type']]).size().sort_values(ascending=True).plot(kind='barh')
+        plt.title('Number of crimes by type')
+        plt.ylabel('Crime Type')
+        plt.xlabel('Number of crimes')
+        
+        img = io.BytesIO()
+        img.seek(0)
+        plt.savefig(img, format='png')
+        plot_url = base64.b64encode(img.getvalue()).decode()
 
-    elif(request.form['EDA'] == "Location Description"):
-        print("BILL_AMT2")
-        graphs = [
-        dict(
-            data=[
-                dict(
-                    x =  crimes.groupby([crimes['Location Description']]).size().sort_values(ascending=True),
-                    type='bar'
-                ),
-            ],
-            layout=dict(
-                title='first graph'
-            )
-            )]
+        return '<img src="data:image/png;base64,{}">'.format(plot_url)
 
-        ids = ['graph-{}'.format(i) for i, _ in enumerate(graphs)] 
-        graphJSON = json.dumps(graphs, cls=plotly.utils.PlotlyJSONEncoder)
-        return render_template('graph.html', 
-                           ids=ids,
-                           graphJSON=graphJSON)
+
+    elif(request.form['EDA'] == "Month"):
+        crimes.groupby([crimes.index.month]).size().plot(kind='barh')
+        plt.ylabel('Months')
+        plt.xlabel('Number of crimes')
+        plt.title('Number of crimes by Month ')
+        
+        img = io.BytesIO()
+        img.seek(0)
+        plt.savefig(img, format='png')
+        plot_url = base64.b64encode(img.getvalue()).decode()
+
+        return '<img src="data:image/png;base64,{}">'.format(plot_url)
 
     elif(request.form['EDA'] == "Week"):
-        line_chart = pygal.HorizontalBar()
-        line_chart.title = 'Number of Crimes by day of the week' 
-        line_chart.add('Week', crimes.groupby([crimes.index.dayofweek]).size())
-        graph_data = line_chart.render_data_uri()
-        return render_template('graph1.html',  graph_data=graph_data)
-    elif(request.form['EDA'] == "Month"):
-        line_chart = pygal.HorizontalBar()
-        line_chart.title = 'Number of Crimes by day of the Month' 
-        line_chart.add('Month', crimes.groupby([crimes.index.month]).size())
-        graph_data = line_chart.render_data_uri()
-        return render_template('graph1.html',  graph_data=graph_data)
+        days = ['Monday','Tuesday','Wednesday',  'Thursday', 'Friday', 'Saturday', 'Sunday']
+        crimes.groupby([crimes.index.dayofweek]).size().plot(kind='barh')
+        plt.figure(figsize=(11,5))
+        plt.ylabel('Days of the week')
+        plt.yticks(np.arange(7), days)
+        plt.xlabel('Number of crimes')
+        plt.title('Number of crimes by day of the week')
+        img = io.BytesIO()
+        img.seek(0)
+        plt.savefig(img, format='png')
+        plot_url = base64.b64encode(img.getvalue()).decode()
+
+        return '<img src="data:image/png;base64,{}">'.format(plot_url)
+    elif(request.form['EDA'] == "Location Description"):
+        plt.figure(figsize=(8,10))
+        crimes.groupby([crimes['Location Description']]).size().sort_values(ascending=True).plot(kind='barh')
+        plt.title('Number of crimes by Location')
+        plt.ylabel('Crime Location')
+        plt.xlabel('Number of crimes')
+        
+        img = io.BytesIO()
+        img.seek(0)
+        plt.savefig(img, format='png')
+        plot_url = base64.b64encode(img.getvalue()).decode()
+
+        return '<img src="data:image/png;base64,{}">'.format(plot_url)
+    elif(request.form['EDA'] == "cpm1"):
+
+
+        img = io.BytesIO()
+        plt.figure(figsize=(11,5))
+        crimes_count_date = crimes.pivot_table('ID', aggfunc=np.size, columns='Primary Type', index=crimes.index.date, fill_value=0)
+        crimes_count_date.index = pd.DatetimeIndex(crimes_count_date.index)
+        plo = crimes_count_date.rolling(365).sum().plot(figsize=(12, 30), subplots=True, layout=(-1, 3), sharex=False, sharey=False)
+        plt.xticks(rotation = 90)
+        #plt.title('Crimes Seperated by types and its occurance in the years')
+        plt.savefig(img, format='png')
+        img.seek(0)
+
+        plot_url = base64.b64encode(img.getvalue()).decode()
+
+        return '<img src="data:image/png;base64,{}">'.format(plot_url)
+    elif(request.form['EDA'] == "cpm"):
+        plt.figure(figsize=(11,5))
+        img = io.BytesIO()
+        crimes.resample('M').size().plot(legend=False)
+        plt.title('Crime Rate Per Year (2008 - 2016)')
+        plt.xlabel('Months')
+        plt.ylabel('Number of crimes')
+        plt.savefig(img, format='png')
+        img.seek(0)
+        plot_url = base64.b64encode(img.getvalue()).decode()
+        return '<img src="data:image/png;base64,{}">'.format(plot_url)
 
 @app.route('/showSignUp/')
 def showSignUp():
     return render_template('signup.html')
 @app.route('/showSignin/')
 def showSignin():
-    return render_template('signin.html')  
+    return render_template('signup.html')  
 @app.route('/showSignOut/', methods=['POST'])
 def signOut():
     session.pop('username_form')
@@ -133,23 +188,15 @@ def signIn():
     if request.method == "POST":
 
         username_form  = request.form['inputEmail']
+        name = request.form['inputName']
         password_form  = request.form['inputPassword']
-        data = cursor.execute("SELECT * FROM user WHERE user_username  = %s;", [username_form]) # CHECKS IF USERNAME EXSIST
-        #print(data)
-        data = cursor.fetchone()[3]
-        data1 = cursor.execute("SELECT * FROM user WHERE user_username  = %s;", [username_form]) # CHECKS IF USERNAME EXSIST
-        data1 =cursor.fetchone()[1]
-        print(data1)
-        if(password_form == data):
+        if(username_form == "admin" and password_form == "admin"):
             #print(data)
-            session['Logged in'] = True
-            username = session['username_form'] = request.form['inputEmail']
-            session['user_username'] = data1
-            return render_template("loggedin.html", data1=data1)
+            return render_template("loggedin.html", name=name)
        
         else:
             flash("Ops! Wrong Credentials")
-            return render_template("signin.html" )
+            return render_template("signup.html" )
 @app.route('/fill_form/', methods=['POST'])
 def fill_form():
     if request.method== "POST":
@@ -222,9 +269,14 @@ def prediction_form():
         X = [[Primary_Type , Ward , District , Community ]]
         var = pd.DataFrame(X)
         print(var)
-        return render_template('predicted_form.html', beat_Count = beat_Count)
+        lr_Model = pickle.load(open('lr_model.pckl', 'rb'))
+        #bnb_Model = pickle.load(open('bnb_model.pckl', 'rb'))
+        prediction2 = lr_Model.predict(var)
+        #prediction3 = bnb_Model.predict(var)
+        return render_template('predicted_form.html', beat_Count = beat_Count, prediction2= prediction2)
     else:
-            return "OPS"
+            flash("Something went wrong")
+            return render_template("fill_form.html")
 @app.route('/Prediction_CSV/' ,methods= ['POST'])
 def Prediction_CSV():
         # A
@@ -240,22 +292,41 @@ def Prediction_CSV():
 
     # D.
     if file:    
-        
+            
         filename = secure_filename(file.filename)
         dir_name = 'uploads/'
         if not os.path.exists(dir_name):
             os.makedirs(dir_name)
-        file_path = os.path.join(dir_name, filename)
-        file.save(file_path)
-    try:
-        dataset = pd.read_csv(file_path)
-        print("Data Read")
-        return render_template('predicted_CSV.html')
-    except:
-        return "Please Select Only CSV File"
+        try:
+            file_path = os.path.join(dir_name, filename)
+            file.save(file_path)
+            dataset = pd.read_csv(file_path)
+            print("Data Read")
+            return render_template('predicted_CSV.html')
+        except:
+            flash("Please Upload only CSV file")
+            return render_template('upload_csv.html')
+    return render_template('upload_csv.html')         
+def create_fig(current_feature_name,bins):
+    p = Histogram(crimes, current_feature_name, title='Primary_Type', 
+    bins=bins, legend='top_right', width=600, height=400)
+    # Set the x axis label
+    p.xaxis.axis_label = current_feature_name
+    # Set the y axis label
+    p.yaxis.axis_label = 'Count'
+    return p
+
+@app.route('/graph1/', methods=["POST"])
+def graph1():
+    current_feature_name = request.args.get("feature_name")
+# Create the plot
+    plot = create_fig(current_feature_name, 10)
+    
+# Embed plot into HTML via Flask Render
+    script, div = components(plot)
+    return render_template("trial.html", script=script, div=div,
+        feature_names=feature_names,  current_feature_name=current_feature_name)
    
-
-
 if __name__ == "__main__":
 
 #app.debug = True
