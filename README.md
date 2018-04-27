@@ -22,7 +22,7 @@
 
 ## [Airflow] (./Models_Airflow.py)
 
-## [shantanu] (./Project_Proposal.pdf)
+## [shantanu] (Project_Proposal.pdf)
 
 
 
