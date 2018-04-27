@@ -14,15 +14,6 @@
 
 ## Click here to access Exploratory Data Analysis for crimes in chicago [Exploratory Data Analysis] (./Crimes In Chicago(EDA).ipynb)
 
-## [Team Report] (./Final_Project_Report.pdf)
-
-## [Presentation Report] (./Final_Project_Presentnation.pptx)
-
-## [Model Deployment Python Files] (./Models.py)
-
-## [Airflow] (./Models_Airflow.py)
-
-## [shantanu] (Project_Proposal.pdf)
 
 
 
